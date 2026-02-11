@@ -40,11 +40,19 @@ def return_algorithm_name(i: int) -> str:
     type=click.Choice(['md5', 'sha1', 'sha256', 'mixed'], case_sensitive=False),
     help="Provide hashing algorithm. If not provided, the script will guess it by itself and assume all of the hashes use the same hashing algorithm."
 )
-
-def hello(verbose, algorithm):
-    with open('to-crack.txt', 'r', encoding='utf-8') as f:
+@click.option(
+    '--hash-file',
+    type=click.Path(exists=True),
+    default='to-crack.txt',
+    help="Path to .txt file with passwords to crack."
+)
+def hello(verbose, algorithm, hash_file):
+    with open(hash_file, 'r', encoding='utf-8') as f:
         to_crack_list = f.readlines()
     to_crack_list = [line.strip() for line in to_crack_list]
+    if not to_crack_list:
+        print(f"There are no passwords to crack in the {hash_file} file")
+        return -1
     cracked_list = []
     
     match algorithm:
