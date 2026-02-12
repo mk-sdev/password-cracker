@@ -1,37 +1,5 @@
 import click, csv, time
-
-def predict_hash_algorithm(hash_str: str) -> int | None:
-    """
-    Predicts the hashing algorithm
-    Returns:
-        1 - MD5
-        2 - SHA1
-        3 - SHA256
-        None - unknown
-    """
-    hash_str = hash_str.lower()  # To ensure letters are lower case
-    # Check if hex
-    if not all(c in "0123456789abcdef" for c in hash_str):
-        return "Unknown"
-
-    length = len(hash_str)
-    if length == 32:
-        return 1
-    elif length == 40:
-        return 2
-    elif length == 64:
-        return 3
-    else:
-        return None
-
-
-def return_algorithm_name(i: int) -> str:
-    if i == 1:
-        return 'MD5'
-    if i == 2:
-        return 'SHA1'
-    if i == 3:
-        return 'SHA256'
+from utils import predict_hash_algorithm, return_algorithm_name, initialize_hash_algo
 
 @click.command()
 @click.option("-v", "--verbose", is_flag=True, help="Be more verbose")
@@ -49,7 +17,7 @@ def return_algorithm_name(i: int) -> str:
 @click.option('-o', '--output', type=click.Path(), default='output.csv', 
             help="Specify output file. If not provided, results will be saved to 'output.csv'."
 )
-def hello(verbose, algorithm, hash_file, output):
+def crack(verbose, algorithm, hash_file, output):
 
     start_time = time.time()
     with open(hash_file, 'r', encoding='utf-8') as f:
@@ -60,17 +28,7 @@ def hello(verbose, algorithm, hash_file, output):
         return -1
     cracked_list = []
     
-    match algorithm:
-        case 'md5':
-            hash_algo = 1
-        case 'sha1':
-            hash_algo = 2
-        case 'sha256':
-            hash_algo = 3
-        case None:
-            hash_algo = predict_hash_algorithm(to_crack_list[0])
-        case _:
-            hash_algo = None
+    hash_algo = initialize_hash_algo(algorithm, to_crack_list)
 
     if verbose and not algorithm:
         print("Detected hashing algorithm:", return_algorithm_name(hash_algo), '\n')
@@ -97,11 +55,13 @@ def hello(verbose, algorithm, hash_file, output):
         if verbose:
             n_cracked = len(cracked_list)
             n_not_cracked = len(to_crack_list)
+
             fg_color = 'green' if not to_crack_list else ('red' if n_cracked == 0 else 'yellow')
             click.secho("\n======================", fg=fg_color)
             print("Cracked:",n_cracked, f"({n_cracked/(n_cracked+n_not_cracked)*100}%)")
             print("Not Cracked:",n_not_cracked, f"({n_not_cracked/(n_cracked+n_not_cracked)*100}%)")
             click.secho("======================\n", fg=fg_color)
+
             if n_not_cracked:
                 print("List of not cracked passwords:", to_crack_list)
             if not to_crack_list: 
@@ -127,4 +87,4 @@ def hello(verbose, algorithm, hash_file, output):
 
 
 if __name__ == '__main__':
-    hello()
+    crack()
