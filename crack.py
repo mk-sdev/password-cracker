@@ -48,8 +48,8 @@ def return_algorithm_name(i: int) -> str:
 )
 def hello(verbose, algorithm, hash_file):
     with open(hash_file, 'r', encoding='utf-8') as f:
-        to_crack_list = f.readlines()
-    to_crack_list = [line.strip() for line in to_crack_list]
+        hashed_passwords = f.readlines()
+    to_crack_list = [line.strip() for line in hashed_passwords]
     if not to_crack_list:
         print(f"There are no passwords to crack in the {hash_file} file")
         return -1
@@ -77,14 +77,14 @@ def hello(verbose, algorithm, hash_file):
 
                 if algorithm == 'mixed':
                     hash_algo = predict_hash_algorithm(hash)
-                    if not hash_algo: break
+                    if not hash_algo: continue
 
                 if row[hash_algo] == hash:
                     if verbose: print("Password cracked!")
                     print(hash, '->', row[0])
                     cracked_list.append((hash, row[0]))
                     to_crack_list.remove(hash)
-            if len(cracked_list) == len(to_crack_list):
+            if len(cracked_list) == len(hashed_passwords):
                 break # stop the loop if all passwords have been cracked
             
         print(cracked_list)
