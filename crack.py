@@ -46,6 +46,9 @@ def return_algorithm_name(i: int) -> str:
     default='to-crack.txt',
     help="Path to .txt file with passwords to crack."
 )
+@click.option('-o', '--output', type=click.Path(), default='output.csv', 
+            help="Specify output file. If not provided, results will be saved to 'output.csv'."
+)
 def hello(verbose, algorithm, hash_file, output):
 
     start_time = time.time()
@@ -109,6 +112,12 @@ def hello(verbose, algorithm, hash_file, output):
             if not cracked_list:
                 click.secho("Couldn't crack any password", fg='red')
 
+        # todo: move this up
+        with open(output, 'w', newline='', encoding='utf-8') as o:
+            writer = csv.writer(o)
+            writer.writerow(['hash','password'])
+            for item in cracked_list:
+                writer.writerow(item)
 
         end_time = time.time()
         if verbose:
