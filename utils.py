@@ -1,3 +1,5 @@
+import hashlib
+
 def predict_hash_algorithm(hash_str: str) -> int | None:
     """
     Predicts the hashing algorithm
@@ -44,3 +46,19 @@ def initialize_hash_algo(algorithm, to_crack_list) -> int | None:
             return predict_hash_algorithm(to_crack_list[0])
         case _:
             return None
+        
+def hash_password(algorithm, plain, target=None):
+    hashed_password=None
+    
+    if algorithm == 'md5':
+        hashed_password = hashlib.md5(plain.encode()).hexdigest()
+    elif algorithm == 'sha1':
+        hashed_password = hashlib.sha1(plain.encode()).hexdigest()
+    elif algorithm == 'sha256':
+        hashed_password = hashlib.sha256(plain.encode()).hexdigest()
+    elif algorithm == 'mixed':
+        predicted_algorithm = predict_hash_algorithm(target)
+        algorithm_name = return_algorithm_name(predicted_algorithm)
+        hashed_password = hash_password(algorithm_name, plain)
+    
+    return hashed_password

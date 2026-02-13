@@ -1,28 +1,5 @@
-import datetime
-import click, csv, time
-from utils import predict_hash_algorithm, return_algorithm_name, initialize_hash_algo
-
-
-import itertools
-import hashlib
-
-def hash_password(algorithm, plain, target=None):
-    hashed_password=None
-    
-    if algorithm == 'md5':
-        hashed_password = hashlib.md5(plain.encode()).hexdigest()
-    elif algorithm == 'sha1':
-        hashed_password = hashlib.sha1(plain.encode()).hexdigest()
-    elif algorithm == 'sha256':
-        hashed_password = hashlib.sha256(plain.encode()).hexdigest()
-    elif algorithm == 'mixed':
-        predicted_algorithm = predict_hash_algorithm(target)
-        algorithm_name = return_algorithm_name(predicted_algorithm)
-        hashed_password = hash_password(algorithm_name, plain)
-    
-    return hashed_password
-
-
+import click, csv, time, datetime, itertools
+from utils import predict_hash_algorithm, return_algorithm_name, initialize_hash_algo, hash_password
 
 def brute_force_attack(verbose, to_crack_list, algorithm, min, max, skip_digits, skip_special):
     charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
