@@ -25,11 +25,11 @@ def predict_hash_algorithm(hash_str: str) -> int | None:
 
 def return_algorithm_name(i: int) -> str:
     if i == 1:
-        return 'MD5'
+        return 'md5'
     if i == 2:
-        return 'SHA1'
+        return 'sha1'
     if i == 3:
-        return 'SHA256'
+        return 'sha256'
     
 
 def initialize_hash_algo(algorithm, to_crack_list) -> int | None:
