@@ -33,8 +33,13 @@ def crack(verbose, algorithm, hash_file, output):
     if verbose and not algorithm:
         print("Detected hashing algorithm:", return_algorithm_name(hash_algo), '\n')
 
-    with open('hashes.csv', 'r', encoding='utf-8') as csv_file:
+    with open('hashes.csv', 'r', encoding='utf-8') as csv_file, \
+        open(output, 'w', newline='', encoding='utf-8') as output_file:
+
         csv_reader = csv.reader(csv_file)
+        output_writer = csv.writer(output_file)
+        output_writer.writerow(['hash','password'])
+
         for row in csv_reader:
             for hash in to_crack_list:
 
@@ -47,6 +52,7 @@ def crack(verbose, algorithm, hash_file, output):
                         click.secho("Password cracked!", bg='green')
                         print(hash, '->', row[0])
                     cracked_list.append((hash, row[0]))
+                    output_writer.writerow((hash, row[0]))
                     to_crack_list.remove(hash)
             if len(cracked_list) == len(hashed_passwords):
                 break # stop the loop if all passwords have been cracked
@@ -55,11 +61,13 @@ def crack(verbose, algorithm, hash_file, output):
         if verbose:
             n_cracked = len(cracked_list)
             n_not_cracked = len(to_crack_list)
+            cracked_percent = round(n_cracked/(n_cracked+n_not_cracked)*100,2)
+            not_cracked_percent = round(n_not_cracked/(n_cracked+n_not_cracked)*100,2)
 
             fg_color = 'green' if not to_crack_list else ('red' if n_cracked == 0 else 'yellow')
             click.secho("\n======================", fg=fg_color)
-            print("Cracked:",n_cracked, f"({n_cracked/(n_cracked+n_not_cracked)*100}%)")
-            print("Not Cracked:",n_not_cracked, f"({n_not_cracked/(n_cracked+n_not_cracked)*100}%)")
+            print("Cracked:",n_cracked, f"({cracked_percent}%)")
+            print("Not Cracked:",n_not_cracked, f"({not_cracked_percent}%)")
             click.secho("======================\n", fg=fg_color)
 
             if n_not_cracked:
@@ -72,12 +80,6 @@ def crack(verbose, algorithm, hash_file, output):
             if not cracked_list:
                 click.secho("Couldn't crack any password", fg='red')
 
-        # todo: move this up
-        with open(output, 'w', newline='', encoding='utf-8') as o:
-            writer = csv.writer(o)
-            writer.writerow(['hash','password'])
-            for item in cracked_list:
-                writer.writerow(item)
 
         end_time = time.time()
         if verbose:
