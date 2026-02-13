@@ -2,6 +2,7 @@ import click, csv, time
 from utils import predict_hash_algorithm, return_algorithm_name, initialize_hash_algo
 
 @click.command()
+@click.argument('hashed_passwords', nargs=-1)
 @click.option("-v", "--verbose", is_flag=True, help="Be more verbose")
 @click.option(
     "--algorithm",
@@ -17,12 +18,18 @@ from utils import predict_hash_algorithm, return_algorithm_name, initialize_hash
 @click.option('-o', '--output', type=click.Path(), default='output.csv', 
             help="Specify output file. If not provided, results will be saved to 'output.csv'."
 )
-def crack(verbose, algorithm, hash_file, output):
+def crack(hashed_passwords, verbose, algorithm, hash_file, output):
 
     start_time = time.time()
-    with open(hash_file, 'r', encoding='utf-8') as f:
-        hashed_passwords = f.readlines()
-    to_crack_list = [line.strip() for line in hashed_passwords]
+
+    to_crack_list=None #list of passwords left to crack
+    if hashed_passwords:
+        to_crack_list=list(hashed_passwords)
+    else:
+        with open(hash_file, 'r', encoding='utf-8') as f:
+            hashed_passwords = f.readlines()
+        to_crack_list = [line.strip() for line in hashed_passwords]
+        
     if not to_crack_list:
         print(f"There are no passwords to crack in the {hash_file} file")
         return -1
